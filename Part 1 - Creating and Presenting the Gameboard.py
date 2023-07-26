@@ -1,3 +1,6 @@
+# Created by Tuong Bao Nguyen
+# Started 04/04/2023
+
 # The following chunk of code will ask the player for how many columns they
 # want and ensure that they input a valid value.
 columns_number = 0
