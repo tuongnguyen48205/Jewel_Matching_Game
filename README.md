@@ -1,5 +1,5 @@
 # Jewel_Matching_Game
-A game created using the programming language of Python.
+A game created by Tuong Bao Nguyen using the programming language of Python.
 
 Information
 Matching games are a popular class of games, with titles like Bejeweled and Candy Crush receiving great success over recent years. This game is inspired by games like the previously two mentioned, excepted coded by a solo programmer from the ground up. This is the Jewel Matching Game where your primary objective is to match the jewels in order to clear all of the jewels off the screen, leaving behind a completely blank board. The jewels themselves are denoted by any of the 26 characters in the English alphabet. For this game, you will be prompted to generate a game board ranging in any size from 2x2 to 100x100 where the difficulty increases as the size of the board increases. It is impossible to play a game where the board is less than 2x2, which will be explained later, and rather silly to attempt a game with over 1000 squares despite it being very much possible! 
