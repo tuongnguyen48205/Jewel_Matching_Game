@@ -2,6 +2,8 @@
 # Created on 06/08/2023
 
 import random
+from time import sleep
+from multiprocessing import Process
 
 #--------------------------------------------------------------
 #Custom exceptions:
@@ -93,7 +95,9 @@ def validate_input(board, position, direction):
     # sure that each board value is an upper case character.
     for row3 in board:
         for jewel in row3:
-            if not jewel.isupper() or len(jewel) != 1:
+            if jewel == " ":
+                pass
+            elif not jewel.isupper() or len(jewel) != 1:
                 return False
             
     # The following code between line 50-55 addresses the fourth point, making
@@ -132,6 +136,7 @@ def validate_input(board, position, direction):
     
     # If all the conditions are met, it means that the input was valid and so
     # the function returns True.
+    
     return True
 
 def legal_move(board, position, direction):
@@ -593,6 +598,129 @@ def make_move(board, position, direction):
         
     return board
 
+def task():
+    sleep(1)
+
+def ai_player(board):
+    '''
+    This function uses an 'AI' to solve a board that the player inputs. The 
+    function takes one argumment 'board', in the form of a nested list of 
+    lists. The function returns a list of positions and moves that should
+    (hopefully) solve the puzzle.
+    '''
+    
+    ai_move = []  # This is the list of moves and positions that the ai returns
+    
+    # The following while loop makes it so that the ai will continue until the 
+    # board has been solved. Otherwise, after many iterations, if the ai is 
+    # unable to solve the board, it could possibly mean that the board is 
+    # unsolvable so no sequence exists that would solve the board, returning 
+    # None
+    counter = 0
+    while True:
+        counter += 1
+        end_count = 0
+        if counter == len(board) * len(board[0]):
+            return None
+        for row in board:
+            for jewel in row:
+                if jewel == " ":
+                    end_count += 1
+        if end_count == len(board) * len(board[0]):
+            break
+  
+        # Firstly, we list out every single possible move that can be made.
+        # However, if there is an empty gap represented by the " " character,
+        # obviously, it cannot be moved and so it is passed.
+        # Admittedly, this is far from being the most efficient AI.
+        movelist = []
+        row_counter = -1
+        for row2 in board:
+            row_counter += 1
+            column_counter = -1
+            for jewel2 in row2:
+                column_counter += 1
+                position = (row_counter, column_counter)
+                if jewel2 == "Z":
+                    pass
+                elif position[0] == 0 and position[1] == 0:
+                    movelist.append((position, 'r'))
+                    movelist.append((position, 'd'))
+                elif position[0] == 0 and position[1] == len(row2) - 1:
+                    movelist.append((position, 'l'))
+                    movelist.append((position, 'd'))
+                elif position[1] == 0 and position[0] == len(board) - 1:
+                    movelist.append((position, 'r'))
+                    movelist.append((position, 'u'))
+                elif position[1] == len(row2) - 1 and position[0] == len(board) - 1:
+                    movelist.append((position, 'l'))
+                    movelist.append((position, 'u'))       
+                elif position[0] == 0:
+                    movelist.append((position, 'l'))
+                    movelist.append((position, 'r'))
+                    movelist.append((position, 'd'))
+                elif position[1] == 0:
+                    movelist.append((position, 'r'))
+                    movelist.append((position, 'd'))
+                    movelist.append((position, 'u'))
+                elif position[1] == len(row2) - 1:
+                    movelist.append((position, 'l'))
+                    movelist.append((position, 'd'))
+                    movelist.append((position, 'u'))
+                elif position[0] == len(board) - 1:
+                    movelist.append((position, 'l'))
+                    movelist.append((position, 'r'))
+                    movelist.append((position, 'u'))
+                else:
+                    movelist.append((position, 'l'))
+                    movelist.append((position, 'r'))
+                    movelist.append((position, 'u'))
+                    movelist.append((position, 'd'))
+                 
+        # To make the AI more efficient, each move in the list of every single
+        # possible move is ran through the legal_move function which removes
+        # all illegal moves, leaving behind only the moves that are valid, 
+        # which makes the AI more efficient by only testing the possible moves
+        # rather than every single combination.
+        for position, direction in movelist:
+            possible_move = legal_move(board, position, direction)
+            if possible_move is False:
+                movelist.remove((position, direction))
+    
+        # Every single possible move is then ran through the make_move function
+        # which returns a new board based on the move that was made. Each board 
+        # will be different and unique depending on the move made. A tally is
+        # used to keep track of all the unique moves and corresponding board.
+        # This AI uses a point system to determine which move is the best move
+        # to make. The way that this point system works is by counting the 
+        # number of empty gaps (" ") present in each new board that results 
+        # from every single move being made. This new board and its 
+        # corresponding number of points is also placed into the tally. 
+        tally = []
+        for new_position, new_direction in movelist:
+            board2 = []
+            for row in board:
+                board2.append(row.copy())  
+            newboard = make_move(board2, new_position, new_direction)
+            z_counter = 0
+            for row in newboard:
+                for jewel in row:
+                    if jewel == " ":
+                        z_counter += 1
+            tally.append((z_counter, newboard, (new_position, new_direction)))
+        
+        # Now that we have the all moves, its board and corresponding number of 
+        # points tallied, the ai determines the best move to make based on 
+        # which move would result in the greatest number of points (the 
+        # greatest number of empty gaps). The AI then uses the board produced
+        # by doing this 'best move' and the whole function starts all over 
+        # again using the new board until the entire board is empty.
+        sorted_tally = sorted(tally, reverse = True)
+        ai_move.append(sorted_tally[0][2])
+        board = sorted_tally[0][1]
+    
+    return ai_move
+
 #--------------------------------------------------------------
 
 
@@ -623,7 +751,7 @@ try:
     elif play == "play":
         pass
     elif play == "AI":
-        raise MakeAIPlay
+        pass
     else:
         print("Error detected, closing game.")
         exit()
@@ -685,9 +813,12 @@ except Information:
         else:
             continue 
 
-
-print("\n------------------------------------------------------------------------------------\n")
-print("You have chosen to play the game! Now you will need to select your difficulty.")
+if play == "AI":
+    print("\n------------------------------------------------------------------------------------\n")
+    print("You have chosen to make ann AI play the game! Now you will need to select your difficulty.")
+else:
+    print("\n------------------------------------------------------------------------------------\n")
+    print("You have chosen to play the game! Now you will need to select your difficulty.")
 print("The game is played best if the number of rows equal the number of columns.")
 print("Additionally, even though you can make a board of any size, only some sizes can result")
 print("in a possible win (if the area of the board is divisible by 4).")
@@ -844,15 +975,21 @@ print("there may be no possible solutions. You can also reset the board and rest
 print('at any time by typing "reset". If you are unsure at any point, you may type "info" to')
 print("receive all the info regarding this game.")
 
-blank_counter = 0
-
 while True:
+    if play == "AI":
+        break
     try:
         # The following line is if all the jewels have been eliminated leaving behind a blank
         # board, which means that the player has won.
+        blank_counter = 0
+        for row in board:
+            for jewel in row:
+                if jewel == " ":
+                    blank_counter += 1
         if blank_counter == possible_board:
             break
-
+        
+        # The following code is for the main component of the gameplay
         move = input("\nMake your move in the format ((x-position, y-position), direction): ")
         if move == "quit":
             print("\n------------------------------------------------------------------------------------")
@@ -957,10 +1094,29 @@ while True:
         print("That input was not valid. Please try again.")
         pass
 
+# The following is for if the player wants an AI to play the game
+if play == "AI":
+    ai_move = ai_player(board)
+    print("\nThe following moves can solve the board as determined by the AI:")
+    print(ai_move)
+    print("\n------------------------------------------------------------------------------------\n")
 
+# The following is if the player wins the game
+else:
+    print("\nCongratulations!! You beat the JEWEL MATCHING GAME!")
+    print("Why don't you try an even harder board.\n")
 
-#except MakeAIPlay:
-# make sure no squares upon launch
-# win condition
-# fix reset and invalid inputs
-
+while True:
+    end = input('Please type "new" to start a new game or type "quit" to exit: ')
+    if end == "quit":
+        print("\n------------------------------------------------------------------------------------")
+        print("\nThank you for playing!")
+        print("\n------------------------------------------------------------------------------------")
+        exit()
+    elif end == "new":
+        process = Process(target=task)
+        process.start()
+        process.join()
+        process.start()
+    else:
+        continue
