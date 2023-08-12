@@ -17,6 +17,7 @@ class EndMove(Exception):
     pass
 #--------------------------------------------------------------
 #Functions:
+
 def pretty_print(board):
     '''
     This function prints out a neat game board for the player. The function
@@ -65,6 +66,7 @@ def pretty_print(board):
     print("")
 
     return "Outstanding move!"
+
 def validate_input(board, position, direction):
     '''
     This function aims to validate the player's input (making sure that the
@@ -900,7 +902,6 @@ board_template = [['_'] * columns_number] * row_number
 if possible_board % 4 == 0:
     no_of_jewels = []
     maxnum = int(possible_board / 2)
-    print(maxnum)
     if maxnum <= 4:
         maxnum = 5
     for i in range(4, maxnum, 4):
